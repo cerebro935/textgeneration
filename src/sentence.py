@@ -8,7 +8,7 @@ ppDictionary = {}
 def nextpos(postag, probability, recurlevel):
   if "$$" in postag:
     mylist = []
-    mylist.append(["$", float(1.0)])
+    mylist.append(["$", float(1)])
     return mylist
 
   if recurlevel > 10:
@@ -26,28 +26,28 @@ def nextpos(postag, probability, recurlevel):
       d = {x: y}
       tempDictionary.update(d)
       
-  count = 0
+  count = float(0)
   
   for x, y in tempDictionary.items():
       if y.isdigit():
-        count += int(y)
+        count += float(int(y))
 
   for x, y in tempDictionary.items():
     if y.isdigit():
-      d = {x: float(int(y)/float(count))}
+      d = {x: float(int(y))/float(count)}
       temp2Dictionary.update(d)
     
   temp2Dictionary = collections.OrderedDict(sorted(temp2Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-  temp2Dictionary = dict(temp2Dictionary.items()[:3])
+  temp2Dictionary = dict(temp2Dictionary.items()[:5])
 #  print "LEVEL: " + str(recurlevel)
   mylist = []
   for x, y in temp2Dictionary.items():
     nextstring = re.split('\s+', x)
     wordlist = nextpos(nextstring[1], y, recurlevel+1)
-    
     for i in range(len(wordlist)):
+      print wordlist[i][1]
       posstring = nextstring[0] + " " + wordlist[i][0]
-      mylist.append([posstring, float(int(wordlist[i][1]))*probability])
+      mylist.append([posstring, float(wordlist[i][1])*probability])
 #  print mylist
   return mylist
 
@@ -82,7 +82,7 @@ def main():
     temp2Dictionary.update(d)
   
   temp2Dictionary = collections.OrderedDict(sorted(temp2Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-  temp2Dictionary = dict(temp2Dictionary.items()[:3])
+  temp2Dictionary = dict(temp2Dictionary.items()[:5])
 
   mylist = []
   for x, y in temp2Dictionary.items():
@@ -101,7 +101,7 @@ def main():
   temp3Dictionary = collections.OrderedDict(sorted(temp3Dictionary.items(), key=operator.itemgetter(1), reverse=True))
   file = open("../data/posSentences.txt", "w")
   for x, y in temp3Dictionary.items():
-    file.write(x+"   "+str(y))
+    file.write(x+"   "+str(y)+"\n")
     print x
     print y
   file.close()
