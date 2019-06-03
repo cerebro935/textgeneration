@@ -1,0 +1,154 @@
+import os
+import re
+import random
+import operator
+import collections
+import math
+
+structureDictionary = {}
+wpDictionary = {}
+wwDictionary = {}
+wDictionary = {}
+
+def findword(postag, wordlist):
+  if not wordlist:
+    prevword = '^'
+  else:
+    prevword = str(wordlist[-1])
+  global wpDictionary
+  global wwDictionary
+  global wDictionary
+  tempDictionary = {}
+  temp2Dictionary = {}
+  temp3Dictionary = {}
+  temp4Dictionary = {}
+  
+  for x, y in wpDictionary.items():
+    mylist = re.split(r'\s+', x)
+    if postag == mylist[1] and mylist[0] not in wordlist:
+      d = {mylist[0]: y}
+      tempDictionary.update(d)
+  
+  for x, y in wwDictionary.items():
+    if x.startswith(prevword):
+      mylist = re.split(r'\s+', x)
+      if mylist[0] not in wordlist:
+        d = {mylist[1]: y}
+        temp2Dictionary.update(d)
+  
+  count = 0    
+  for x, y in tempDictionary.items():
+    if y.isdigit():
+      count += int(y)
+    
+  for x, y in tempDictionary.items():
+    if y.isdigit():
+      d = {x: float(int(y)/float(count))}
+      temp3Dictionary.update(d)
+  
+  count = 0
+  for x, y in temp2Dictionary.items():
+    if y.isdigit():
+      count += int(y)
+  
+  for x, y in temp2Dictionary.items():
+    if y.isdigit():
+      d = {x: float(int(y)/float(count))}
+      temp4Dictionary.update(d)
+
+  for x, y in temp3Dictionary.items():
+    if x in temp4Dictionary:
+      temp4Dictionary[x] = 1+float(temp4Dictionary[x])
+    else:
+      temp4Dictionary.update({x: y})
+        
+  temp4Dictionary = collections.OrderedDict(sorted(temp4Dictionary.items(), key=operator.itemgetter(1), reverse=True))
+#  temp4Dictionary = dict(temp4Dictionary.items()[len(temp4Dictionary)/500:])
+  temp4Dictionary = dict(temp4Dictionary.items()[:10])
+  mylist = []
+  for x, y in temp4Dictionary.items():
+    mylist.append([x, float(y)])
+    
+  return mylist 
+  
+def fill(randlist):
+  
+  for i in range(len(randlist)):
+    mylist = re.split(r'\s+', randlist[i][0])
+    wordlist = []
+    for j in mylist:
+        if j == '.' or '$' in j:
+          wordlist.append('.')
+          break
+        stringlist = list(findword(j, wordlist))
+        string = ""
+        if not stringlist:
+          string = "NA"
+        else:
+          string, wordprob = random.choice(stringlist)
+        wordlist.append(string)
+    sentencestring = ""
+    for x in wordlist:
+      sentencestring += x+" "
+    print sentencestring +"\n\n"
+
+def main():
+  global structureDictionary
+  global wpDictionary
+  global wwDictionary
+  global wDictionary
+  
+  file = open("../data/posSentences.txt", "r")
+  for x in file:
+    mylist = re.split(r'\s+', x)
+    string = ""
+    prob = ""
+    for y in range(len(mylist)):
+      if y == len(mylist)-2:
+        prob = float(mylist[y])
+      else:
+        string += mylist[y]+" "
+    d = {string.lower(): prob}
+    structureDictionary.update(d)
+  file.close()
+  structureDictionary = collections.OrderedDict(sorted(structureDictionary.items(), key=operator.itemgetter(1), reverse=True))
+  
+  file = open("../data/wpFreq", "r")
+  for x in file:
+    mylist = re.split(r'\s+', x)
+    string = mylist[0] + " " + mylist[1]
+    d = {string.lower(): mylist[2]}
+    wpDictionary.update(d)
+  file.close()
+  
+  file = open("../data/wFreq", "r")
+  for x in file:
+    mylist = re.split(r'\s+', x)
+    string = mylist[0]
+    d = {string: mylist[1]}
+    wDictionary.update(d)
+  file.close()
+  
+  file = open("../data/wwFreq", "r")
+  for x in file:
+    mylist = re.split(r'\s+', x)
+    string = mylist[0] + " " + mylist[1]
+    d = {string.lower(): mylist[2]}
+    wwDictionary.update(d)
+  file.close()
+  
+  i = 0
+  structurelist= []
+
+  while i < 10:
+    string, prob = random.choice(list(structureDictionary.items()))
+    structurelist.append([string, float(prob)])
+    i += 1
+  fill(structurelist)
+  
+#  for j in range(len(structurelist)):
+#    print "STRING: "+structurelist[j][0]
+#    print "PROB: "+str(structurelist[j][1])
+  
+if __name__ == '__main__':
+  main()

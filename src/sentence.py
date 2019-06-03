@@ -38,14 +38,14 @@ def nextpos(postag, probability, recurlevel):
       temp2Dictionary.update(d)
     
   temp2Dictionary = collections.OrderedDict(sorted(temp2Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-  temp2Dictionary = dict(temp2Dictionary.items()[:5])
+  temp2Dictionary = dict(temp2Dictionary.items()[:3])
 #  print "LEVEL: " + str(recurlevel)
   mylist = []
   for x, y in temp2Dictionary.items():
     nextstring = re.split('\s+', x)
     wordlist = nextpos(nextstring[1], y, recurlevel+1)
     for i in range(len(wordlist)):
-      print wordlist[i][1]
+#      print wordlist[i][1]
       posstring = nextstring[0] + " " + wordlist[i][0]
       mylist.append([posstring, float(wordlist[i][1])*probability])
 #  print mylist
@@ -82,7 +82,7 @@ def main():
     temp2Dictionary.update(d)
   
   temp2Dictionary = collections.OrderedDict(sorted(temp2Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-  temp2Dictionary = dict(temp2Dictionary.items()[:5])
+  temp2Dictionary = dict(temp2Dictionary.items()[:3])
 
   mylist = []
   for x, y in temp2Dictionary.items():
