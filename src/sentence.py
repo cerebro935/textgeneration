@@ -11,7 +11,7 @@ def nextpos(postag, probability, recurlevel):
     mylist.append(["$", float(1)])
     return mylist
 
-  if recurlevel > 10:
+  if recurlevel > 15:
     mylist = []
     return mylist
 
@@ -38,11 +38,13 @@ def nextpos(postag, probability, recurlevel):
       temp2Dictionary.update(d)
     
   temp2Dictionary = collections.OrderedDict(sorted(temp2Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-  temp2Dictionary = dict(temp2Dictionary.items()[:3])
+  temp2Dictionary = dict(temp2Dictionary.items()[:2])
 #  print "LEVEL: " + str(recurlevel)
   mylist = []
   for x, y in temp2Dictionary.items():
     nextstring = re.split('\s+', x)
+    if recurlevel < 2:
+        print nextstring[1]
     wordlist = nextpos(nextstring[1], y, recurlevel+1)
     for i in range(len(wordlist)):
 #      print wordlist[i][1]
@@ -82,7 +84,7 @@ def main():
     temp2Dictionary.update(d)
   
   temp2Dictionary = collections.OrderedDict(sorted(temp2Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-  temp2Dictionary = dict(temp2Dictionary.items()[:3])
+  temp2Dictionary = dict(temp2Dictionary.items()[:50])
 
   mylist = []
   for x, y in temp2Dictionary.items():
