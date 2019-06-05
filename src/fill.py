@@ -8,6 +8,7 @@ import math
 structureDictionary = {}
 wpDictionary = {}
 wwDictionary = {}
+wwwDictionary = {}
 wDictionary = {}
 
 def findword(postag, wordlist):
@@ -22,12 +23,22 @@ def findword(postag, wordlist):
   temp2Dictionary = {}
   temp3Dictionary = {}
   temp4Dictionary = {}
+  temp5Dictionary = {}
+  temp6Dictionary = {}
   
   for x, y in wpDictionary.items():
     mylist = re.split(r'\s+', x)
     if postag == mylist[1] and mylist[0] not in wordlist:
       d = {mylist[0]: y}
       tempDictionary.update(d)
+      
+  for x, y in wwwDictionary.items():
+    mylist = re.split(r'\s+', x)
+    if len(mylist)==3 and len(wordlist) > 2:
+      if mylist[0] == wordlist[-2] and mylist[1]==wordlist[-1]:
+        if mylist[2] not in wordlist:
+          d = {mylist[2]: y}
+          temp5Dictionary.update(d)
   
   for x, y in wwDictionary.items():
     if x.startswith(prevword):
@@ -35,6 +46,7 @@ def findword(postag, wordlist):
       if mylist[0] not in wordlist:
         d = {mylist[1]: y}
         temp2Dictionary.update(d)
+
   
   count = 0    
   for x, y in tempDictionary.items():
@@ -55,16 +67,42 @@ def findword(postag, wordlist):
     if y.isdigit():
       d = {x: float(int(y)/float(count))}
       temp4Dictionary.update(d)
+      
+  count = 0
+  for x, y in temp5Dictionary.items():
+    if y.isdigit():
+      count += int(y)
+      
+  for x, y in temp5Dictionary.items():
+    if y.isdigit():
+      d = {x: float(int(y)/float(count))}
+      temp6Dictionary.update(d)
 
   for x, y in temp3Dictionary.items():
-    if x in temp4Dictionary:
-      temp4Dictionary[x] = 1+float(temp4Dictionary[x])
+    if x not in temp6Dictionary:
+      if x in temp4Dictionary:
+        temp6Dictionary.update({x: 1+temp4Dictionary[x]})
+        #temp6Dictionary.update({x: y+temp4Dictionary[x]})
+      else:
+        temp6Dictionary.update({x: y})
     else:
-      temp4Dictionary.update({x: y})
+      if x in temp4Dictionary:
+        temp6Dictionary[x] += 3+temp4Dictionary[x]
+        #temp6Dictionary[x] += temp4Dictionary[x]+y
+      else:
+        temp6Dictionary[x] += 2+y
+        #temp6Dictionary[x] += y
+
+#    if x in temp4Dictionary and x in temp6Dictionary:
+#      temp4Dictionary[x] = 2+float(temp6Dictionary[x])
+#    if x in temp4Dictionary:
+#      temp4Dictionary[x] = 1+float(temp4Dictionary[x])
+#    else:
+#      temp4Dictionary.update({x: y})
         
-  temp4Dictionary = collections.OrderedDict(sorted(temp4Dictionary.items(), key=operator.itemgetter(1), reverse=True))
+  temp4Dictionary = collections.OrderedDict(sorted(temp6Dictionary.items(), key=operator.itemgetter(1), reverse=True))
 #  temp4Dictionary = dict(temp4Dictionary.items()[len(temp4Dictionary)/500:])
-  temp4Dictionary = dict(temp4Dictionary.items()[:10])
+  temp4Dictionary = dict(temp4Dictionary.items()[:1])
   mylist = []
   for x, y in temp4Dictionary.items():
     mylist.append([x, float(y)])
@@ -91,12 +129,16 @@ def fill(randlist):
     for x in wordlist:
       sentencestring += x+" "
     print sentencestring +"\n\n"
+    file= open("../data/generatedSentences.txt", "a")
+    file.write(sentencestring +"\n")
+    file.close()
 
 def main():
   global structureDictionary
   global wpDictionary
   global wwDictionary
   global wDictionary
+  global wwwDictionary
   
   file = open("../data/posSentences.txt", "r")
   for x in file:
@@ -137,18 +179,22 @@ def main():
     wwDictionary.update(d)
   file.close()
   
+  file = open("../data/wwwFreq", "r")
+  for x in file:
+    mylist = re.split(r'\s+', x)
+    string = mylist[0] + " " + mylist[1]+" "+mylist[2]
+    d = {string.lower(): mylist[3]}
+    wwwDictionary.update(d)
+  file.close()
+  
   i = 0
   structurelist= []
 
-  while i < 10:
+  while i < 500:
     string, prob = random.choice(list(structureDictionary.items()))
     structurelist.append([string, float(prob)])
     i += 1
   fill(structurelist)
-  
-#  for j in range(len(structurelist)):
-#    print "STRING: "+structurelist[j][0]
-#    print "PROB: "+str(structurelist[j][1])
   
 if __name__ == '__main__':
   main()
