@@ -4,6 +4,7 @@ import random
 import operator
 import collections
 import math
+import multiprocessing
 
 structureDictionary = {}
 wpDictionary = {}
@@ -82,37 +83,24 @@ def findword(postag, wordlist):
     if x not in temp6Dictionary:
       if x in temp4Dictionary:
         temp6Dictionary.update({x: 1+temp4Dictionary[x]})
-        #temp6Dictionary.update({x: y+temp4Dictionary[x]})
       else:
         temp6Dictionary.update({x: y})
     else:
       if x in temp4Dictionary:
-        temp6Dictionary[x] += 3+temp4Dictionary[x]
-        #temp6Dictionary[x] += temp4Dictionary[x]+y
+        temp6Dictionary[x] += 3
       else:
-        temp6Dictionary[x] += 2+y
-        #temp6Dictionary[x] += y
-
-#    if x in temp4Dictionary and x in temp6Dictionary:
-#      temp4Dictionary[x] = 2+float(temp6Dictionary[x])
-#    if x in temp4Dictionary:
-#      temp4Dictionary[x] = 1+float(temp4Dictionary[x])
-#    else:
-#      temp4Dictionary.update({x: y})
+        temp6Dictionary[x] += 2
         
   temp4Dictionary = collections.OrderedDict(sorted(temp6Dictionary.items(), key=operator.itemgetter(1), reverse=True))
-#  temp4Dictionary = dict(temp4Dictionary.items()[len(temp4Dictionary)/500:])
-  temp4Dictionary = dict(temp4Dictionary.items()[:1])
+  temp4Dictionary = dict(temp4Dictionary.items()[:5])
   mylist = []
   for x, y in temp4Dictionary.items():
     mylist.append([x, float(y)])
     
   return mylist 
   
-def fill(randlist):
-  
-  for i in range(len(randlist)):
-    mylist = re.split(r'\s+', randlist[i][0])
+def fill(randline):
+    mylist = re.split(r'\s+', randline)
     wordlist = []
     for j in mylist:
         if j == '.' or '$' in j:
@@ -189,12 +177,15 @@ def main():
   
   i = 0
   structurelist= []
-
-  while i < 500:
+  while i < 100:
     string, prob = random.choice(list(structureDictionary.items()))
-    structurelist.append([string, float(prob)])
-    i += 1
-  fill(structurelist)
+    mylist = re.split(r'\s+', string)
+    if 5 < len(mylist):
+	  structurelist.append(string)
+	  i += 1
+  pool = multiprocessing.Pool()
+  pool.map(fill, structurelist)
+  pool.close()
   
 if __name__ == '__main__':
   main()
