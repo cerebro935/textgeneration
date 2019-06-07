@@ -100,26 +100,26 @@ def findword(postag, wordlist):
   return mylist 
   
 def fill(randline):
-    mylist = re.split(r'\s+', randline)
-    wordlist = []
-    for j in mylist:
-        if j == '.' or '$' in j:
-          wordlist.append('.')
-          break
-        stringlist = list(findword(j, wordlist))
-        string = ""
-        if not stringlist:
-          string = "NA"
-        else:
-          string, wordprob = random.choice(stringlist)
-        wordlist.append(string)
-    sentencestring = ""
-    for x in wordlist:
-      sentencestring += x+" "
-    print sentencestring +"\n\n"
-    file= open("../data/generatedSentences.txt", "a")
-    file.write(sentencestring +"\n")
-    file.close()
+  mylist = re.split(r'\s+', randline)
+  wordlist = []
+  for j in mylist:
+    if j == '.' or '$' in j:
+      wordlist.append('.')
+      break
+    stringlist = list(findword(j, wordlist))
+    string = ""
+    if not stringlist:
+      string = "NA"
+    else:
+      string, wordprob = random.choice(stringlist)
+    wordlist.append(string)
+  sentencestring = ""
+  for x in wordlist:
+    sentencestring += x+" "
+  print sentencestring +"\n\n"
+  file= open("../data/generatedSentences.txt", "a")
+  file.write(sentencestring +"\n")
+  file.close()
 
 def main():
   global structureDictionary
@@ -181,8 +181,8 @@ def main():
     string, prob = random.choice(list(structureDictionary.items()))
     mylist = re.split(r'\s+', string)
     if 5 < len(mylist):
-	  structurelist.append(string)
-	  i += 1
+	    structurelist.append(string)
+	    i += 1
   pool = multiprocessing.Pool()
   pool.map(fill, structurelist)
   pool.close()
